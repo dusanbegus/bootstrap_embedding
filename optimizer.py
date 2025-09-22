@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import sklearn
-
+import sys
 def optimizer_step(c, step, gradient_matrix):
     """
     Performs a single optimization step using the Adam algorithm.
@@ -64,9 +64,14 @@ def gradient(loss, c):
     loss.backward()
     return c.grad
 def loss(c):
+    return 0
 
-if __name__=="__main__":
-    print(0)
+
+def main():
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())
 
 
 
