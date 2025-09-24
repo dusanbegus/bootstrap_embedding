@@ -71,6 +71,9 @@ def gradient(c, eta=0.001):
     loss=torch.tensor(loss_function, requires_grad=True)
     grad=[]
     for c_i in c:
+        phase =np.random.rand()*2*np.pi
+        eta=eta* torch.exp(torch.tensor(1j*phase))
+        # so in a sense we create a stochastic gradient descent
         loss_eta=functions.loss((c+eta*c_i)/ (torch.norm(c+ eta*c_i)))
         delta_loss=loss_eta-loss_function
         c_i_grad=delta_loss/eta
