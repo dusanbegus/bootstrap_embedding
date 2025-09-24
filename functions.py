@@ -14,15 +14,21 @@ def create_init():
     for i in range(32):
         l.append(1/np.sqrt(32))
     return l    
+def create_random():
+    state=np.random.rand(32)
+    state=state/np.linalg.norm(state)
+    return state.tolist()   
 
 def loss(c, target_state=list(create_init())):
+    if torch.is_tensor(c):
+        c=c.detach().numpy()
     # we wil have a list of 2^5 parameters initially and we will perform optimization over them
     state=np.array(c)
     qc=QuantumCircuit(11)
-    qc.initialize(state, [0,1,2,3,4])
-    qc.initialize(target_state, [5,6,7,8,9])  
+    qc.initialize(state, [0,1,2,3,4], normalize=True)
+    qc.initialize(target_state, [5,6,7,8,9], normalize=True)  
     # now we will compute the fidelity between these two states
-    qc.initialize([1,0],10)
+    qc.initialize([1,0],10, normalize=True)
     qc.add_register(ClassicalRegister(1, 'c'))
     qc.h(10)
     qc.append(CSwapGate(), [10, 0, 5])

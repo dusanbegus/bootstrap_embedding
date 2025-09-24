@@ -56,7 +56,7 @@ def optimizer_step(c, step, gradient_matrix):
     optimizer_step.v = v
 
     return c
-def gradient(loss, c):
+def gradient(c, eta=0.001):
     """
     Computes the gradient of the loss with respect to parameters.
 
@@ -67,9 +67,16 @@ def gradient(loss, c):
     Returns:
     torch.Tensor: Gradient of the loss with respect to parameters.
     """
-    loss_function=loss(c)  
-    loss.backward()
-    return c.grad
+    loss_function=functions.loss(c)  
+    loss=torch.tensor(loss_function, requires_grad=True)
+    grad=[]
+    for c_i in c:
+        loss_eta=functions.loss((c+eta*c_i)/ (torch.norm(c+ eta*c_i)))
+        delta_loss=loss_eta-loss_function
+        c_i_grad=delta_loss/eta
+        grad.append(c_i_grad)
+    c_grad=torch.tensor(grad, requires_grad=True)
+    return c_grad
 
 
 
@@ -77,7 +84,7 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    print(1)
+    print(gradient(torch.tensor(functions.create_random(), requires_grad=True)))
     sys.exit(main())
 
 
