@@ -4,6 +4,12 @@ import torch
 import torch.nn as nn
 import sklearn
 import sys
+from qiskit import QuantumCircuit
+from qiskit.circuit.library import CSwapGate
+from qiskit import QuantumCircuit, ClassicalRegister, transpile
+from qiskit_aer import AerSimulator
+import functions
+
 def optimizer_step(c, step, gradient_matrix):
     """
     Performs a single optimization step using the Adam algorithm.
@@ -61,16 +67,17 @@ def gradient(loss, c):
     Returns:
     torch.Tensor: Gradient of the loss with respect to parameters.
     """
+    loss_function=loss(c)  
     loss.backward()
     return c.grad
-def loss(c):
-    return 0
+
 
 
 def main():
     return 0
 
 if __name__ == '__main__':
+    print(1)
     sys.exit(main())
 
 

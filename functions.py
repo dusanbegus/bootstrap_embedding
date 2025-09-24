@@ -8,7 +8,6 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import CSwapGate
 from qiskit import QuantumCircuit, ClassicalRegister, transpile
 from qiskit_aer import AerSimulator
-import optimizer
 
 def create_init():
     l=[]
@@ -39,10 +38,10 @@ def loss(c, target_state=list(create_init())):
     counts = result.get_counts(qc)
     num_zeros = counts.get('0', 0)
     fidelity = num_zeros / 100
-    print("Fidelity:", fidelity)
+    return 1-fidelity
 
 
 if __name__ == "__main__":
-    loss(list(create_init())        )
+    print(loss(list(create_init())        ))
     sys.exit(0)
     
