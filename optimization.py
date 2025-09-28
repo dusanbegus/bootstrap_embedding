@@ -12,7 +12,7 @@ from qiskit_aer import AerSimulator
 import functions
 
 
-def gradient_descent(c, steps=1000):
+def gradient_descent(c, angles, target, steps=1000, eta=0.01):
     """
     Performs gradient descent optimization on the parameters.
 
@@ -24,11 +24,13 @@ def gradient_descent(c, steps=1000):
     torch.Tensor: Optimized parameters after the specified number of steps.
     """
     for step in range(steps):
-        c_grad = optimizer.gradient(c)
-        c = optimizer.optimizer_step(c, step, c_grad)
+        angles_grad = optimizer.gradient(c,angles, target, eta)
+        angles_f = optimizer.optimizer_step(angles, eta, angles_grad)
         if step % 1 == 0:
-            print(f"Step {step}, Loss: {functions.loss(c)}")
-    return c
+            print(f"Step {step}, Loss: {functions.loss(c, angles_f, target_state=target)}")
+    return c,angles_f
 if __name__ == '__main__':
-    print(gradient_descent(torch.tensor(functions.create_random(), requires_grad=True), steps=50))
+    print(gradient_descent(torch.tensor(functions.create_random()), torch.tensor(functions.create_init()),
+                                        torch.tensor(functions.create_init),
+                                        steps=50))
     sys.exit(0)
