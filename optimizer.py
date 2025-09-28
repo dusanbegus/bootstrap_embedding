@@ -10,53 +10,22 @@ from qiskit import QuantumCircuit, ClassicalRegister, transpile
 from qiskit_aer import AerSimulator
 import functions
 
-def optimizer_step(c, step, gradient_matrix):
+def optimizer_step(angles, eta, gradient_matrix):
     """
-    Performs a single optimization step using the Adam algorithm.
-
+    Performs a single optimization step using the computed gradient.        
     Parameters:
-    c (torch.Tensor): Current parameters to be optimized.
-    step (int): Current optimization step (iteration).
+    angles (torch.Tensor): Current parameters to be optimized.
+    eta (float): Learning rate for the optimization step.
     gradient_matrix (torch.Tensor): Gradient of the loss with respect to parameters.
-
     Returns:
-    torch.Tensor: Updated parameters after the optimization step.
+
+
+    torch.Tensor: Updated parameters after the optimization step.           
     """
-    # Hyperparameters
-    learning_rate = 0.001
-    beta1 = 0.9
-    beta2 = 0.999
-    epsilon = 1e-8
+    angles = angles - eta * gradient_matrix
+    return angles
 
-    # Initialize moment estimates
-    if step == 0:
-        m = torch.zeros_like(c)
-        v = torch.zeros_like(c)
-    else:
-        m = optimizer_step.m
-        v = optimizer_step.v
-
-    # Update biased first moment estimate
-    m = beta1 * m + (1 - beta1) * gradient_matrix
-
-    # Update biased second raw moment estimate
-    v = beta2 * v + (1 - beta2) * (gradient_matrix ** 2)
-
-    # Compute bias-corrected first moment estimate
-    m_hat = m / (1 - beta1 ** (step + 1))
-
-    # Compute bias-corrected second raw moment estimate
-    v_hat = v / (1 - beta2 ** (step + 1))
-
-    # Update parameters
-    c = c - learning_rate * m_hat / (torch.sqrt(v_hat) + epsilon)
-
-    # Store moment estimates for next iteration
-    optimizer_step.m = m
-    optimizer_step.v = v
-
-    return c
-def gradient(c, eta=0.001):
+def gradient(c, angles, target, eta=0.001):
     """
     Computes the gradient of the loss with respect to parameters.
 
@@ -67,27 +36,22 @@ def gradient(c, eta=0.001):
     Returns:
     torch.Tensor: Gradient of the loss with respect to parameters.
     """
-    loss_function=functions.loss(c)  
-    loss=torch.tensor(loss_function, requires_grad=True)
+    loss_function=functions.loss(c, angles, target_state=target)  
     grad=[]
-    for c_i in c:
-        phase =np.random.rand()*2*np.pi
-        eta=eta* torch.exp(torch.tensor(1j*phase))
-        # so in a sense we create a stochastic gradient descent
-        loss_eta=functions.loss((c+eta*c_i)/ (torch.norm(c+ eta*c_i)))
-        delta_loss=loss_eta-loss_function
-        c_i_grad=delta_loss/eta
-        grad.append(c_i_grad)
-    c_grad=torch.tensor(grad, requires_grad=True)
-    return c_grad
-
-
+    for alpha in angles:
+        loss_alpha=functions.loss(c, angles+eta*torch.eye(len(angles))[list(angles).index(alpha)], target_state=target)
+        delta_loss=loss_alpha-loss_function
+        alpha_grad=delta_loss/eta
+        grad.append(alpha_grad)
+    alpha_g=torch.tensor(grad, requires_grad=True)
+    return alpha_g
 
 def main():
     return 0
 
 if __name__ == '__main__':
-    print(gradient(torch.tensor(functions.create_random(), requires_grad=True)))
+    print(gradient(torch.tensor(functions.create_random()), torch.tensor(functions.create_init()),
+                                        torch.tensor(functions.create_init())))
     sys.exit(main())
 
 
