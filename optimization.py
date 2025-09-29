@@ -37,8 +37,8 @@ def gradient_descent(c, angles, target, steps=1000, eta=0.01):
             if loss_value<minimal_loss:
                 minimal_loss=loss_value
                 angles_minimal=angles_f
-            if loss_value<previous*0.5:
-                eta=eta*0.3
+            if loss_value<previous:
+                eta=eta*0.9
                 previous=loss_value
             else:
                 eta=eta*1.2
@@ -54,8 +54,8 @@ if __name__ == '__main__':
     fidelity = 1 - a[2] 
     print("target state:  ", target)
     print("optimized state:  ", a[0]*np.exp(1j*a[1].detach().numpy()))
-    # we want to compute the norm of the difference
-    print("norm of difference", np.linalg.norm(a[0]*np.exp(1j*a[1].detach().numpy())-target))
+    # we want to compute the inner product between the two states
+    print("inner product", np.inner(a[0]*np.exp(1j*a[1].detach().numpy()),target))
     print(f"Fidelity with target state: {fidelity}")    
     
     sys.exit(0)
