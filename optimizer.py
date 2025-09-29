@@ -25,7 +25,7 @@ def optimizer_step(angles, eta, gradient_matrix):
     angles = angles - eta * gradient_matrix
     return angles
 
-def gradient(c, angles, target, eta=0.001):
+def gradient(c, angles, target, eta=0.01):
     """
     Computes the gradient of the loss with respect to parameters.
 
