@@ -15,6 +15,7 @@ def basis(n):
         state=[0 for _ in range(2**n)]
         state[i]=1
         basis_states.append(state)
+
     return basis_states
 def initialize_c(state, basis):
     if torch.is_tensor(state):
@@ -43,18 +44,20 @@ def initialize_c(state, basis):
         
         qc.measure(10,0)
         
-        job = simulator.run(qc, shots=500)  # Run 100 times
+        job = simulator.run(qc, shots=10000)  # Run 100 times
         result = job.result()
         counts = result.get_counts(qc)
         num_zeros = counts.get('0', 0)
-        cs.append(np.sqrt(num_zeros / 500))
+        cs.append(np.sqrt(np.abs(2*(num_zeros / 10000)-1.0)))
+    # normalize cs
+    cs=np.array(cs)/np.linalg.norm(cs)  
     return cs
 if __name__ == "__main__":
     print("Testing basis function...")
     b = basis(5)
     print(f"Generated {len(b)} basis states for 5 qubits.")
-    print("Testing initialize_c function...")
     init_state = [1/np.sqrt(32) for _ in range(32)]
+    print(init_state)
     c_values = initialize_c(init_state, b)
     print(f"Computed c values: {c_values}")
     sys.exit(0)
