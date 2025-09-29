@@ -57,7 +57,7 @@ def loss(c, angles, target_state):
     result = job.result()
     counts = result.get_counts(qc)
     num_zeros = counts.get('0', 0)
-    fidelity = num_zeros / 100
+    fidelity = np.sqrt(2*(num_zeros / 100)-1.0)
     
     return 1-fidelity
 
