@@ -53,13 +53,13 @@ def loss(c, angles, target_state):
     
     qc.measure(10,0)
     
-    job = simulator.run(qc, shots=1000)  # Run 100 times
+    job = simulator.run(qc, shots=10000)  # Run 100 times
     result = job.result()
     counts = result.get_counts(qc)
     num_zeros = counts.get('0', 0)
-    fidelity = np.sqrt(np.absolute(2*(num_zeros / 1000)-1.0))
-    
-    return 1-fidelity
+    fidelity= np.sqrt(np.absolute(2*(num_zeros / 10000)-1.0))
+
+    return 1-fidelity*fidelity
 
 
 if __name__ == "__main__":
