@@ -58,5 +58,29 @@ if __name__ == '__main__':
     target=functions.create_random()*np.exp(1j*np.random.rand(32)*2*np.pi)
     true_alphas=find_coefficients(torch.tensor(setup.initialize_c(target,setup.basis(5))), torch.tensor(functions.create_init()),
                                         torch.tensor(target))
-    
+    # now we want to see if the computed alphas are correct
+    # we construct the full state using true alphas and the initialized c
+    c=setup.initialize_c(target,setup.basis(5))
+    state=np.array(c)*np.exp(1j*np.array(true_alphas))
+    # we compute the fidelity between this state and the target state
+    qc=QuantumCircuit(11)
+    qc.initialize(state, [0,1,2,3,4], normalize=True)
+    qc.initialize(target, [5,6,7,8,9], normalize=True)
+    qc.initialize([1,0],10, normalize=True)
+    qc.add_register(ClassicalRegister(1, 'c'))
+    qc.h(10)
+    qc.append(CSwapGate(), [10, 0, 5])
+    qc.append(CSwapGate(), [10, 1, 6])
+    qc.append(CSwapGate(), [10, 2, 7])
+    qc.append(CSwapGate(), [10, 3, 8])
+    qc.append(CSwapGate(), [10, 4, 9])
+    qc.h(10)
+    simulator = AerSimulator(method='statevector')
+    qc.measure(10,0)
+    job = simulator.run(qc, shots=100)  # Run 100 times
+    result = job.result()
+    counts = result.get_counts(qc)
+    num_zeros = counts.get('0', 0)
+    overlap= np.sqrt(np.absolute(2*(num_zeros / 100)-1.0))
+    print(f"Overlap with target state: {overlap}")
     sys.exit(0)
