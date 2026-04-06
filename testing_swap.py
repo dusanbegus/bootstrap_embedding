@@ -58,22 +58,37 @@ def initialize_circuit(state, basis, dimension):
         simulator = AerSimulator(method='statevector')   
         qc.measure(2*dimension,0)
         # so now we are done with the SWAP test
-          
-        job = simulator.run(qc, shots=100)  # Run 100 times
+        shotss=1000
+        job = simulator.run(qc, shots=shotss)  # Run 100 times
         result = job.result()
         counts = result.get_counts(qc)
         num_zeros = counts.get('0', 0)
-        S2.append(np.abs(2*(num_zeros / 100)-1.0))
-        cs.append(np.sqrt(np.abs(2*(num_zeros / 100)-1.0)))
+        S2.append(np.abs(2*(num_zeros / shotss)-1.0))
+        cs.append(np.sqrt(np.abs(2*(num_zeros / shotss)-1.0)))
     # normalize cs
     S2=np.array(S2)
     cs=np.array(cs)
     return cs,S2
+def the_test():
+    dimensions=[2,3,4,5]
+    repeats=10 # repeat the experiment 10 times for each dimension and average the error
+    err=[]
+    for dimension in dimensions:
+        errors=[]
+        for r in range(repeats):
+            b=basiss(dimension)
+            target=create_rand(2**dimension)
+            c_values, s2_values=initialize_circuit(target, b, dimension)
+            errors.append(np.sum(s2_values)-1.0) 
+        err.append(np.mean(errors))
+
+    plt.plot(dimensions, err)
+    plt.xlabel("Dimension")
+    plt.ylabel("Average Error")
+    plt.title("SWAP Test Error vs Dimension")
+    plt.savefig("swap_test_error.png")
+    plt.show()
+
 
 if __name__ == "__main__":
-    dimension=5
-    b=basiss(dimension)
-    target=create_rand(2**dimension)
-    c_values, s2_values=initialize_circuit(target, b, dimension)
-    print(f"c values: {c_values}")
-    print(f"S2 values: {s2_values}")
+    the_test()
